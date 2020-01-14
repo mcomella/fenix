@@ -26,6 +26,8 @@ class TabHeaderViewHolder(
     private var isPrivate = false
     private var tabsMenu: TabHeaderMenu
 
+    private var closeTabsButton: View? = null
+
     init {
         tabsMenu = TabHeaderMenu(view.context, isPrivate) {
             when (it) {
@@ -43,13 +45,6 @@ class TabHeaderViewHolder(
             share_tabs_button.run {
                 setOnClickListener {
                     interactor.onShareTabs()
-                }
-            }
-
-            close_tabs_button.run {
-                setOnClickListener {
-                    view.context.components.analytics.metrics.track(Event.PrivateBrowsingGarbageIconTapped)
-                    interactor.onCloseAllTabs(true)
                 }
             }
 
@@ -73,15 +68,28 @@ class TabHeaderViewHolder(
     }
 
     fun bind(isPrivate: Boolean, hasTabs: Boolean) {
+        fun maybeInflatePrivateButtons() {
+            if (isPrivate && closeTabsButton == null) {
+                closeTabsButton = view.close_tabs_button_stub.inflate()
+                closeTabsButton!!.setOnClickListener {
+                    view.context.components.analytics.metrics.track(Event.PrivateBrowsingGarbageIconTapped)
+                    interactor.onCloseAllTabs(true)
+                }
+            }
+        }
+
         this.isPrivate = isPrivate
         tabsMenu.isPrivate = isPrivate
 
         val headerTextResourceId =
             if (isPrivate) R.string.tabs_header_private_tabs_title else R.string.tab_header_label
         view.header_text.text = view.context.getString(headerTextResourceId)
-        view.share_tabs_button.isInvisible = !isPrivate || !hasTabs
-        view.close_tabs_button.isInvisible = !isPrivate || !hasTabs
         view.tabs_overflow_button.isVisible = !isPrivate && hasTabs
+
+        // Performance note: using stubs to improve drawable inflation.
+        maybeInflatePrivateButtons()
+        view.share_tabs_button.isInvisible = !isPrivate || !hasTabs
+        closeTabsButton?.isInvisible = !isPrivate || !hasTabs // todo: !!
     }
 
     class TabHeaderMenu(
