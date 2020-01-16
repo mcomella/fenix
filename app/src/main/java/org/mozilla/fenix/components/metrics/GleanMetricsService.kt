@@ -495,7 +495,6 @@ class GleanMetricsService(private val context: Context) : MetricsService {
         // because it calls Google ad APIs that must be called *off* of the main thread.
         // These two things actually happen in parallel, but that should be ok because Glean
         // can handle events being recorded before it's initialized.
-        gleanInitializer = MainScope().launch {
             Glean.registerPings(Pings)
             Glean.initialize(
                 applicationContext = context,
@@ -504,7 +503,7 @@ class GleanMetricsService(private val context: Context) : MetricsService {
                     httpClient = ConceptFetchHttpUploader(
                         lazy(LazyThreadSafetyMode.NONE) { context.components.core.client }
                     )))
-        }
+//        }
         // setStartupMetrics is not a fast function. It does not need to be done before we can consider
         // ourselves initialized. So, let's do it, well, later.
         gleanSetStartupMetrics = MainScope().launch {

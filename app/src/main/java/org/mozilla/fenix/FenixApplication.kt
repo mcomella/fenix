@@ -73,6 +73,10 @@ open class FenixApplication : LocaleAwareApplication() {
             // Attention: Do not invoke any code from a-s in this scope.
             val megazordSetup = setupMegazord()
 
+            if (settings().isTelemetryEnabled) {
+                components.analytics.metrics.start()
+            }
+
             setDayNightTheme()
             enableStrictMode()
 
@@ -108,9 +112,6 @@ open class FenixApplication : LocaleAwareApplication() {
         }
 
         setupLeakCanary()
-        if (settings().isTelemetryEnabled) {
-            components.analytics.metrics.start()
-        }
 
         setupPush()
 
