@@ -53,6 +53,9 @@ import org.mozilla.fenix.library.bookmarks.BookmarkFragmentDirections
 import org.mozilla.fenix.library.history.HistoryFragmentDirections
 import org.mozilla.fenix.onboarding.FenixOnboarding
 import org.mozilla.fenix.perf.HotStartPerformanceMonitor
+import org.mozilla.fenix.perf.StartupTime
+import org.mozilla.fenix.perf.StartupTime.Method.HOME_ACTIVITY_ON_CREATE
+import org.mozilla.fenix.perf.StartupTime.Method.HOME_ACTIVITY_ON_RESUME
 import org.mozilla.fenix.search.SearchFragmentDirections
 import org.mozilla.fenix.settings.DefaultBrowserSettingsFragmentDirections
 import org.mozilla.fenix.settings.SettingsFragmentDirections
@@ -86,6 +89,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity() {
     }
 
     final override fun onCreate(savedInstanceState: Bundle?) {
+        StartupTime.instrumentStart(HOME_ACTIVITY_ON_CREATE)
         super.onCreate(savedInstanceState)
 
         components.publicSuffixList.prefetch()
@@ -108,10 +112,13 @@ open class HomeActivity : LocaleAwareAppCompatActivity() {
                 ?.also { components.analytics.metrics.track(Event.OpenedApp(it)) }
         }
         supportActionBar?.hide()
+
+        StartupTime.instrumentEnd(HOME_ACTIVITY_ON_CREATE)
     }
 
     @CallSuper
     override fun onResume() {
+        StartupTime.instrumentStart(HOME_ACTIVITY_ON_RESUME)
         super.onResume()
 
         lifecycleScope.launch {
@@ -125,6 +132,8 @@ open class HomeActivity : LocaleAwareAppCompatActivity() {
                 }
             }
         }
+
+        StartupTime.instrumentEnd(HOME_ACTIVITY_ON_RESUME)
     }
 
     final override fun onRestart() {
