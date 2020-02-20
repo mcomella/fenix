@@ -107,7 +107,6 @@ open class HomeActivity : LocaleAwareAppCompatActivity() {
 
         setupThemeAndBrowsingMode(getModeFromIntentOrLastKnown(intent))
         setContentView(R.layout.activity_home)
-        Performance.instrumentColdStartupToHomescreenTime(this)
 
         externalSourceIntentProcessors.any { it.process(intent, navHost.navController, this.intent) }
 
