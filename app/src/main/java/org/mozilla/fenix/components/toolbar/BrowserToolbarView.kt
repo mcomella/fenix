@@ -34,6 +34,7 @@ import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.settings
 import org.mozilla.fenix.search.toolbar.setScrollFlagsForTopToolbar
 import org.mozilla.fenix.theme.ThemeManager
+import androidx.asynclayoutinflater.view.AsyncLayoutInflater
 
 interface BrowserToolbarViewInteractor {
     fun onBrowserToolbarPaste(text: String)
@@ -57,21 +58,20 @@ class BrowserToolbarView(
 
     private val settings = container.context.settings()
 
+    lateinit var toolbarIntegration: ToolbarIntegration
+
+    lateinit var view: BrowserToolbar
+
+    lateinit var layout: View
+
     @LayoutRes
     private val toolbarLayout = when {
         settings.shouldUseBottomToolbar -> R.layout.component_bottom_browser_toolbar
         else -> R.layout.component_browser_top_toolbar
     }
 
-    private val layout = LayoutInflater.from(container.context)
-        .inflate(toolbarLayout, container, true)
-
-    val view: BrowserToolbar = layout
-        .findViewById(R.id.toolbar)
-
-    val toolbarIntegration: ToolbarIntegration
-
-    init {
+    @Suppress("ComplexMethod", "LongMethod")
+    private fun setupView() {
         val isCustomTabSession = customTabSession != null
 
         view.display.setOnUrlLongClickListener {
@@ -235,7 +235,23 @@ class BrowserToolbarView(
 
     fun expand() {
         if (!settings.shouldUseBottomToolbar) {
-            layout.app_bar?.setExpanded(true)
+            view.app_bar?.setExpanded(true)
+        }
+    }
+
+    /**
+     * Performs all actions that refer to the BrowserToolbarView that don't require user action.
+     * They are set in the callback because we need to ensure phones execute the code before
+     * we are done inflating.
+     */
+    fun loadAsync(action: View.() -> Unit) {
+        AsyncLayoutInflater(container.context).inflate(toolbarLayout, container) { finalView, _, parent ->
+            view = finalView.findViewById((R.id.toolbar))
+            with(parent!!) {
+                addView(finalView)
+                setupView()
+                action()
+            }
         }
     }
 
