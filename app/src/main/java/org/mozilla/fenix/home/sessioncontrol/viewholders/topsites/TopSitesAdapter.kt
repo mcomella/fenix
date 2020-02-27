@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import mozilla.components.feature.top.sites.TopSite
 import org.mozilla.fenix.home.sessioncontrol.TopSiteInteractor
-import org.mozilla.fenix.perf.ColdStartPerfMonitor
+import org.mozilla.fenix.perf.StartupTimeline
 
 class TopSitesAdapter(
     private val interactor: TopSiteInteractor
@@ -22,7 +22,7 @@ class TopSitesAdapter(
     }
 
     override fun onBindViewHolder(holder: TopSiteItemViewHolder, position: Int) {
-        ColdStartPerfMonitor.onTopSitesItemBound(holder)
+        StartupTimeline.onTopSitesItemBound(holder)
         holder.bind(getItem(position))
     }
 
