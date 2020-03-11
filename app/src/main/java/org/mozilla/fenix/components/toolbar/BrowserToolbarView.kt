@@ -75,56 +75,7 @@ class BrowserToolbarView(
         val isCustomTabSession = customTabSession != null
 
         view.display.setOnUrlLongClickListener {
-            val clipboard = view.context.components.clipboardHandler
-            val customView = LayoutInflater.from(view.context)
-                .inflate(R.layout.browser_toolbar_popup_window, null)
-            val popupWindow = PopupWindow(
-                customView,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                view.context.resources.getDimensionPixelSize(R.dimen.context_menu_height),
-                true
-            )
-
-            val selectedSession = container.context.components.core.sessionManager.selectedSession
-
-            popupWindow.elevation =
-                view.context.resources.getDimension(R.dimen.mozac_browser_menu_elevation)
-
-            customView.paste.isVisible = !clipboard.text.isNullOrEmpty() && !isCustomTabSession
-            customView.paste_and_go.isVisible =
-                !clipboard.text.isNullOrEmpty() && !isCustomTabSession
-
-            customView.copy.setOnClickListener {
-                popupWindow.dismiss()
-                if (isCustomTabSession) {
-                    clipboard.text = customTabSession?.url
-                } else {
-                    clipboard.text = selectedSession?.url
-                }
-
-                FenixSnackbar.make(view, Snackbar.LENGTH_SHORT)
-                    .setText(view.context.getString(R.string.browser_toolbar_url_copied_to_clipboard_snackbar))
-                    .show()
-            }
-
-            customView.paste.setOnClickListener {
-                popupWindow.dismiss()
-                interactor.onBrowserToolbarPaste(clipboard.text!!)
-            }
-
-            customView.paste_and_go.setOnClickListener {
-                popupWindow.dismiss()
-                interactor.onBrowserToolbarPasteAndGo(clipboard.text!!)
-            }
-
-            popupWindow.showAsDropDown(
-                view,
-                view.context.resources.getDimensionPixelSize(R.dimen.context_menu_x_offset),
-                0,
-                Gravity.START
-            )
-
-            true
+            onUrlLongClick(isCustomTabSession)
         }
 
         with(container.context) {
@@ -226,6 +177,59 @@ class BrowserToolbarView(
                 )
             }
         }
+    }
+
+    private fun onUrlLongClick(isCustomTabSession: Boolean): Boolean {
+        val clipboard = view.context.components.clipboardHandler
+        val customView = LayoutInflater.from(view.context)
+            .inflate(R.layout.browser_toolbar_popup_window, null)
+        val popupWindow = PopupWindow(
+            customView,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            view.context.resources.getDimensionPixelSize(R.dimen.context_menu_height),
+            true
+        )
+
+        val selectedSession = container.context.components.core.sessionManager.selectedSession
+
+        popupWindow.elevation =
+            view.context.resources.getDimension(R.dimen.mozac_browser_menu_elevation)
+
+        customView.paste.isVisible = !clipboard.text.isNullOrEmpty() && !isCustomTabSession
+        customView.paste_and_go.isVisible =
+            !clipboard.text.isNullOrEmpty() && !isCustomTabSession
+
+        customView.copy.setOnClickListener {
+            popupWindow.dismiss()
+            if (isCustomTabSession) {
+                clipboard.text = customTabSession?.url
+            } else {
+                clipboard.text = selectedSession?.url
+            }
+
+            FenixSnackbar.make(view, Snackbar.LENGTH_SHORT)
+                .setText(view.context.getString(R.string.browser_toolbar_url_copied_to_clipboard_snackbar))
+                .show()
+        }
+
+        customView.paste.setOnClickListener {
+            popupWindow.dismiss()
+            interactor.onBrowserToolbarPaste(clipboard.text!!)
+        }
+
+        customView.paste_and_go.setOnClickListener {
+            popupWindow.dismiss()
+            interactor.onBrowserToolbarPasteAndGo(clipboard.text!!)
+        }
+
+        popupWindow.showAsDropDown(
+            view,
+            view.context.resources.getDimensionPixelSize(R.dimen.context_menu_x_offset),
+            0,
+            Gravity.START
+        )
+
+        return true
     }
 
     @Suppress("UNUSED_PARAMETER")
