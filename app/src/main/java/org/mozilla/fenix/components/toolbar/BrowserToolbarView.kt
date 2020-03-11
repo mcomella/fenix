@@ -4,6 +4,7 @@
 
 package org.mozilla.fenix.components.toolbar
 
+import android.content.Context
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -70,7 +71,6 @@ class BrowserToolbarView(
         else -> R.layout.component_browser_top_toolbar
     }
 
-    @Suppress("ComplexMethod", "LongMethod")
     private fun setupView() {
         val isCustomTabSession = customTabSession != null
 
@@ -86,45 +86,7 @@ class BrowserToolbarView(
 
                 elevation = TOOLBAR_ELEVATION.dpToFloat(resources.displayMetrics)
 
-                if (!isCustomTabSession) {
-                    display.setUrlBackground(getDrawable(R.drawable.search_url_background))
-                }
-
-                display.onUrlClicked = {
-                    interactor.onBrowserToolbarClicked()
-                    false
-                }
-
-                display.progressGravity = if (shouldUseBottomToolbar) {
-                    DisplayToolbar.Gravity.TOP
-                } else {
-                    DisplayToolbar.Gravity.BOTTOM
-                }
-
-                val primaryTextColor = ContextCompat.getColor(
-                    container.context,
-                    ThemeManager.resolveAttribute(R.attr.primaryText, container.context)
-                )
-                val secondaryTextColor = ContextCompat.getColor(
-                    container.context,
-                    ThemeManager.resolveAttribute(R.attr.secondaryText, container.context)
-                )
-                val separatorColor = ContextCompat.getColor(
-                    container.context,
-                    ThemeManager.resolveAttribute(R.attr.toolbarDivider, container.context)
-                )
-
-                display.colors = display.colors.copy(
-                    text = primaryTextColor,
-                    securityIconSecure = primaryTextColor,
-                    securityIconInsecure = primaryTextColor,
-                    menu = primaryTextColor,
-                    hint = secondaryTextColor,
-                    separator = separatorColor,
-                    trackingProtection = primaryTextColor
-                )
-
-                display.hint = context.getString(R.string.search_hint)
+                setupDisplayView(this@with, this, isCustomTabSession)
             }
 
             val menuToolbar: ToolbarMenu
@@ -177,6 +139,52 @@ class BrowserToolbarView(
                 )
             }
         }
+    }
+
+    private fun setupDisplayView(
+        context: Context,
+        browserToolbar: BrowserToolbar,
+        isCustomTabSession: Boolean
+    ) {
+        if (!isCustomTabSession) {
+            browserToolbar.display.setUrlBackground(context.getDrawable(R.drawable.search_url_background))
+        }
+
+        browserToolbar.display.onUrlClicked = {
+            interactor.onBrowserToolbarClicked()
+            false
+        }
+
+        browserToolbar.display.progressGravity = if (shouldUseBottomToolbar) {
+            DisplayToolbar.Gravity.TOP
+        } else {
+            DisplayToolbar.Gravity.BOTTOM
+        }
+
+        val primaryTextColor = ContextCompat.getColor(
+            container.context,
+            ThemeManager.resolveAttribute(R.attr.primaryText, container.context)
+        )
+        val secondaryTextColor = ContextCompat.getColor(
+            container.context,
+            ThemeManager.resolveAttribute(R.attr.secondaryText, container.context)
+        )
+        val separatorColor = ContextCompat.getColor(
+            container.context,
+            ThemeManager.resolveAttribute(R.attr.toolbarDivider, container.context)
+        )
+
+        browserToolbar.display.colors = browserToolbar.display.colors.copy(
+            text = primaryTextColor,
+            securityIconSecure = primaryTextColor,
+            securityIconInsecure = primaryTextColor,
+            menu = primaryTextColor,
+            hint = secondaryTextColor,
+            separator = separatorColor,
+            trackingProtection = primaryTextColor
+        )
+
+        browserToolbar.display.hint = browserToolbar.context.getString(R.string.search_hint)
     }
 
     private fun onUrlLongClick(toolbarView: View, isCustomTabSession: Boolean): Boolean {
