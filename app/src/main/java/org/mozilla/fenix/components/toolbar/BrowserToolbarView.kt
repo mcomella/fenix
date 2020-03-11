@@ -75,7 +75,7 @@ class BrowserToolbarView(
         val isCustomTabSession = customTabSession != null
 
         view.display.setOnUrlLongClickListener {
-            onUrlLongClick(isCustomTabSession)
+            onUrlLongClick(view, isCustomTabSession)
         }
 
         with(container.context) {
@@ -179,21 +179,21 @@ class BrowserToolbarView(
         }
     }
 
-    private fun onUrlLongClick(isCustomTabSession: Boolean): Boolean {
-        val clipboard = view.context.components.clipboardHandler
-        val customView = LayoutInflater.from(view.context)
+    private fun onUrlLongClick(toolbarView: View, isCustomTabSession: Boolean): Boolean {
+        val clipboard = toolbarView.context.components.clipboardHandler
+        val customView = LayoutInflater.from(toolbarView.context)
             .inflate(R.layout.browser_toolbar_popup_window, null)
         val popupWindow = PopupWindow(
             customView,
             LinearLayout.LayoutParams.WRAP_CONTENT,
-            view.context.resources.getDimensionPixelSize(R.dimen.context_menu_height),
+            toolbarView.context.resources.getDimensionPixelSize(R.dimen.context_menu_height),
             true
         )
 
         val selectedSession = container.context.components.core.sessionManager.selectedSession
 
         popupWindow.elevation =
-            view.context.resources.getDimension(R.dimen.mozac_browser_menu_elevation)
+            toolbarView.context.resources.getDimension(R.dimen.mozac_browser_menu_elevation)
 
         customView.paste.isVisible = !clipboard.text.isNullOrEmpty() && !isCustomTabSession
         customView.paste_and_go.isVisible =
@@ -207,8 +207,8 @@ class BrowserToolbarView(
                 clipboard.text = selectedSession?.url
             }
 
-            FenixSnackbar.make(view, Snackbar.LENGTH_SHORT)
-                .setText(view.context.getString(R.string.browser_toolbar_url_copied_to_clipboard_snackbar))
+            FenixSnackbar.make(toolbarView, Snackbar.LENGTH_SHORT)
+                .setText(toolbarView.context.getString(R.string.browser_toolbar_url_copied_to_clipboard_snackbar))
                 .show()
         }
 
@@ -223,8 +223,8 @@ class BrowserToolbarView(
         }
 
         popupWindow.showAsDropDown(
-            view,
-            view.context.resources.getDimensionPixelSize(R.dimen.context_menu_x_offset),
+            toolbarView,
+            toolbarView.context.resources.getDimensionPixelSize(R.dimen.context_menu_x_offset),
             0,
             Gravity.START
         )
