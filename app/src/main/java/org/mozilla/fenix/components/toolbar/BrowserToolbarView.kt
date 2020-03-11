@@ -74,12 +74,7 @@ class BrowserToolbarView(
     private fun setupView() {
         val isCustomTabSession = customTabSession != null
 
-        view.display.setOnUrlLongClickListener {
-            onUrlLongClick(view, isCustomTabSession)
-        }
-
-        setupDisplayView(view.context, view.display, isCustomTabSession)
-
+        setupDisplayView(view, isCustomTabSession)
 
         with(container.context) {
             val sessionManager = components.core.sessionManager
@@ -143,10 +138,16 @@ class BrowserToolbarView(
     }
 
     private fun setupDisplayView(
-        context: Context,
-        displayToolbar: DisplayToolbar,
+        browserToolbar: BrowserToolbar,
         isCustomTabSession: Boolean
     ) {
+        val context = browserToolbar.context
+        val displayToolbar = browserToolbar.display
+
+        displayToolbar.setOnUrlLongClickListener {
+            onUrlLongClick(browserToolbar, isCustomTabSession)
+        }
+
         if (!isCustomTabSession) {
             displayToolbar.setUrlBackground(context.getDrawable(R.drawable.search_url_background))
         }
