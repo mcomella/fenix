@@ -74,16 +74,14 @@ class BrowserToolbarView(
     private fun setupView() {
         val isCustomTabSession = customTabSession != null
 
+        view.apply {
+            setScrollFlagsForTopToolbar()
+            elevation = TOOLBAR_ELEVATION.dpToFloat(resources.displayMetrics)
+        }
         setupDisplayView(view, isCustomTabSession)
 
         with(container.context) {
             val sessionManager = components.core.sessionManager
-
-            view.apply {
-                setScrollFlagsForTopToolbar()
-
-                elevation = TOOLBAR_ELEVATION.dpToFloat(resources.displayMetrics)
-            }
 
             val menuToolbar: ToolbarMenu
             if (isCustomTabSession) {
