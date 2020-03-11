@@ -78,6 +78,9 @@ class BrowserToolbarView(
             onUrlLongClick(view, isCustomTabSession)
         }
 
+        setupDisplayView(view.context, view.display, isCustomTabSession)
+
+
         with(container.context) {
             val sessionManager = components.core.sessionManager
 
@@ -85,8 +88,6 @@ class BrowserToolbarView(
                 setScrollFlagsForTopToolbar()
 
                 elevation = TOOLBAR_ELEVATION.dpToFloat(resources.displayMetrics)
-
-                setupDisplayView(this@with, this, isCustomTabSession)
             }
 
             val menuToolbar: ToolbarMenu
@@ -143,19 +144,19 @@ class BrowserToolbarView(
 
     private fun setupDisplayView(
         context: Context,
-        browserToolbar: BrowserToolbar,
+        displayToolbar: DisplayToolbar,
         isCustomTabSession: Boolean
     ) {
         if (!isCustomTabSession) {
-            browserToolbar.display.setUrlBackground(context.getDrawable(R.drawable.search_url_background))
+            displayToolbar.setUrlBackground(context.getDrawable(R.drawable.search_url_background))
         }
 
-        browserToolbar.display.onUrlClicked = {
+        displayToolbar.onUrlClicked = {
             interactor.onBrowserToolbarClicked()
             false
         }
 
-        browserToolbar.display.progressGravity = if (shouldUseBottomToolbar) {
+        displayToolbar.progressGravity = if (shouldUseBottomToolbar) {
             DisplayToolbar.Gravity.TOP
         } else {
             DisplayToolbar.Gravity.BOTTOM
@@ -174,7 +175,7 @@ class BrowserToolbarView(
             ThemeManager.resolveAttribute(R.attr.toolbarDivider, container.context)
         )
 
-        browserToolbar.display.colors = browserToolbar.display.colors.copy(
+        displayToolbar.colors = displayToolbar.colors.copy(
             text = primaryTextColor,
             securityIconSecure = primaryTextColor,
             securityIconInsecure = primaryTextColor,
@@ -184,7 +185,7 @@ class BrowserToolbarView(
             trackingProtection = primaryTextColor
         )
 
-        browserToolbar.display.hint = browserToolbar.context.getString(R.string.search_hint)
+        displayToolbar.hint = context.getString(R.string.search_hint)
     }
 
     private fun onUrlLongClick(toolbarView: View, isCustomTabSession: Boolean): Boolean {
