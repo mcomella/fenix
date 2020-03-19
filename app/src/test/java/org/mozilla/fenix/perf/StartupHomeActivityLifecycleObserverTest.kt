@@ -6,26 +6,33 @@ package org.mozilla.fenix.perf
 
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
+import io.mockk.verifySequence
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
 import mozilla.components.service.glean.private.NoReasonCodes
 import mozilla.components.service.glean.private.PingType
 import org.junit.Before
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class StartupHomeActivityLifecycleObserverTest {
 
     private lateinit var observer: StartupHomeActivityLifecycleObserver
+    @MockK(relaxed = true) private lateinit var additionalMetrics: StartupTimelineAdditionalMetrics
     @MockK(relaxed = true) private lateinit var startupTimeline: PingType<NoReasonCodes>
 
     @Before
     fun setUp() {
         MockKAnnotations.init(this)
-        observer = StartupHomeActivityLifecycleObserver(startupTimeline)
+        observer = StartupHomeActivityLifecycleObserver(additionalMetrics, startupTimeline)
     }
 
     @Test
-    fun `WHEN onStop is called THEN the ping is submitted`() {
+    fun `WHEN onStop is called THEN the metrics are set and the ping is submitted`() = runBlockingTest {
         observer.onStop()
-        verify { startupTimeline.submit() }
+        verifySequence {
+            additionalMetrics.setExpensiveMetrics()
+            startupTimeline.submit()
+        }
     }
 }
