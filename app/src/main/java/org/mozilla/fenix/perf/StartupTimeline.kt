@@ -5,6 +5,12 @@
 package org.mozilla.fenix.perf
 
 import androidx.annotation.UiThread
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
+import mozilla.components.service.glean.private.NoReasonCodes
+import mozilla.components.service.glean.private.PingType
+import org.mozilla.fenix.GleanMetrics.Pings
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.home.sessioncontrol.viewholders.topsites.TopSiteItemViewHolder
 import org.mozilla.fenix.perf.StartupTimelineStateMachine.StartupActivity
@@ -25,6 +31,8 @@ import org.mozilla.fenix.perf.StartupTimelineStateMachine.StartupState
 object StartupTimeline {
 
     private var state: StartupState = StartupState.Cold(StartupDestination.UNKNOWN)
+
+    val homeActivityLifecycleObserver = StartupHomeActivityLifecycleObserver()
     private val reportFullyDrawn = StartupReportFullyDrawn()
 
     fun onActivityCreateEndIntentReceiver() {
@@ -43,5 +51,25 @@ object StartupTimeline {
 
     private fun advanceState(startingActivity: StartupActivity) {
         state = StartupTimelineStateMachine.getNextState(state, startingActivity)
+    }
+}
+
+/**
+ * A [LifecycleObserver] for [HomeActivity] focused on startup performance measurement.
+ */
+class StartupHomeActivityLifecycleObserver(
+    private val startupTimeline: PingType<NoReasonCodes> = Pings.startupTimeline
+) : LifecycleObserver {
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    fun onStop() {
+        // Startup metrics placed in the Activity should be re-recorded each time the Activity
+        // is started so we need to clear the ping lifetime by submitting once per each startup.
+        // It's less complex to add it here rather than the visual completeness task manager.
+        //
+        // N.B.: this submission location may need to be changed if we add metrics outside of the
+        // HomeActivity startup path (e.g. if the user goes directly to a separate activity and
+        // closes the app, they will never hit this) to appropriately adjust for the ping lifetimes.
+        startupTimeline.submit()
     }
 }
