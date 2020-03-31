@@ -1984,3 +1984,40 @@ addons:
     notification_emails:
       - fenix-core@mozilla.com
     expires: "2020-09-01"
+
+startup.timeline:
+  framework_start:
+    send_in_pings:
+      - startup-timeline
+    type: timespan
+    time_unit: millisecond
+    description: >
+      The duration the Android framework takes to start before letting us run code in
+      `*Application.init`. This is calculated from `appInitTimestamp - processStartTimestamp`. Note:
+      while `appInitTimestamp` always returns milliseconds, `processStartTimestamp` may return
+      inconsistent granularities because it is derived from clock ticks. It returns centiseconds on
+      the Pixel 2. These two timestamps' time units are not converted before reaching a result: e.g.
+      on the Pixel 2, this calculation is `milliseconds - centiseconds`.
+    bugs:
+      - https://github.com/mozilla-mobile/fenix/issues/8803
+    data_reviews:
+      - TODO
+    notification_emails:
+      - perf-android-fe@mozilla.com
+      - mcomella@mozilla.com
+    expires: "2020-10-01"
+  framework_start_error:
+    send_in_pings:
+      - startup-timeline
+    type: event
+    description: >
+      An error when attempting to record `framework_start`: one or both of the timestamps used
+      returned a negative value.
+    bugs:
+      - https://github.com/mozilla-mobile/fenix/issues/8803
+    data_reviews:
+      - TODO
+    notification_emails:
+      - perf-android-fe@mozilla.com
+      - mcomella@mozilla.com
+    expires: "2020-10-01"
