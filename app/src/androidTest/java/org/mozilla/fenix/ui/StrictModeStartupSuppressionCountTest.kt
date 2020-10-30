@@ -11,9 +11,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.helpers.HomeActivityTestRule
+import org.mozilla.fenix.perf.ComponentInitCount
 
 // PLEASE CONSULT WITH PERF TEAM BEFORE CHANGING THIS VALUE.
 private const val EXPECTED_SUPPRESSION_COUNT = 11
+
+private const val EXPECTED_COMPONENT_INIT_COUNT = 42
 
 private const val FAILURE_MSG = """StrictMode startup suppression count does not match expected count.
     
@@ -54,5 +57,8 @@ class StrictModeStartupSuppressionCountTest {
         // causing this number to fluctuate depending on device speed. We'll deal with it if it occurs.
         val actual = activityTestRule.activity.components.strictMode.suppressionCount.toInt()
         assertEquals(FAILURE_MSG, EXPECTED_SUPPRESSION_COUNT, actual)
+
+        val act2 = ComponentInitCount.count.get()
+        assertEquals("nope", EXPECTED_COMPONENT_INIT_COUNT, act2)
     }
 }
