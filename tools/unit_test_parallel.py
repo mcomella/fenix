@@ -36,7 +36,7 @@ def bucket_test_paths():
     files = [path for path in contents if os.path.isfile(path)] # todo: handle files
     dirs = [path for path in contents if os.path.isdir(path)]
 
-    bucket_count = 2
+    bucket_count = 8
     buckets = []
     for _ in range(bucket_count): buckets.append([])
 
@@ -53,7 +53,7 @@ def start_tests_in_parallel(buckets):
         print(); pprint(bucket)
         final_bucket = [element for duple in zip(repeat('--tests'), bucket) for element in duple]
 
-        p = subprocess.Popen(['./gradlew', 'testDebug', '--info', '--stacktrace'] + final_bucket, stdout=subprocess.DEVNULL)
+        p = subprocess.Popen(['./gradlew', '--no-daemon', 'testDebug', '--info', '--stacktrace'] + final_bucket, stdout=subprocess.DEVNULL)
         processes.append(p)
     return processes
 
