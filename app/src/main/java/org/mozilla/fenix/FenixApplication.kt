@@ -8,6 +8,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.StrictMode
+import android.os.SystemClock
 import android.util.Log.INFO
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatDelegate
@@ -60,6 +61,7 @@ import java.util.concurrent.TimeUnit
  */
 @Suppress("Registered", "TooManyFunctions", "LargeClass")
 open class FenixApplication : LocaleAwareApplication(), Provider {
+    val startMillis = SystemClock.elapsedRealtime()
     init {
         recordOnInit() // DO NOT MOVE ANYTHING ABOVE HERE: the timing of this measurement is critical.
     }

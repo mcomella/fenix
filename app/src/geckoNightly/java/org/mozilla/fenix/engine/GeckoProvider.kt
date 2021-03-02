@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import android.content.Context
+import android.os.SystemClock
 import mozilla.components.browser.engine.gecko.autofill.GeckoLoginDelegateWrapper
 import mozilla.components.browser.engine.gecko.ext.toContentBlockingSetting
 import mozilla.components.browser.engine.gecko.glean.GeckoAdapter
@@ -10,7 +11,9 @@ import mozilla.components.concept.engine.EngineSession.TrackingProtectionPolicy
 import mozilla.components.concept.storage.LoginsStorage
 import mozilla.components.lib.crash.handler.CrashHandlerService
 import mozilla.components.service.sync.logins.GeckoLoginStorageDelegate
+import mozilla.components.support.base.log.Log
 import org.mozilla.fenix.Config
+import org.mozilla.fenix.FenixApplication
 import org.mozilla.fenix.ext.components
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoRuntimeSettings
@@ -80,6 +83,10 @@ object GeckoProvider {
                 // Existing configuration
                 "goog-phish-proto")
         }
+
+        val now = SystemClock.elapsedRealtime()
+        val elapsed = now - (context.applicationContext as FenixApplication).startMillis
+        android.util.Log.e("lol", "Average $elapsed")
 
         val geckoRuntime = GeckoRuntime.create(context, runtimeSettings)
         val loginStorageDelegate = GeckoLoginStorageDelegate(storage)
